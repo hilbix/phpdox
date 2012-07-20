@@ -49,6 +49,32 @@ namespace TheSeer\phpDox {
         protected $aliasMap;
 
         public function __construct(Parser $parser, array $aliasMap, $publicOnly = false, $encoding = 'ISO-8859-1') {
+	    // XXX TODO XXX this is not the right fix!
+	    // I have no idea how to fix it properly.
+	    // Some BOM-less files which have some UTF-8 in them come out as unknown-8bit.
+	    // In that case iconv() barfs and the whole process is terminated.
+	    // A possible fix seems to be to set it to the default encoding.
+	    // As a debugging aid the unknown encoding is output.
+	    switch ($encoding)
+	      {
+		/* hide all encodings known to work	*/
+		/* this is the list I came along	*/
+		case 'us-ascii':
+		case 'iso-8859-1':
+		case 'utf-8':
+		  break;
+
+		/* list all currently unknown encodings */
+		default:
+		  echo $encoding;
+		  break;
+
+		/* fix encodings known not to work	*/
+		case 'unknown-8bit':
+		  echo '!';
+		  $encoding = 'ISO-8859-1';
+		  break;
+	      }
             $this->parser = $parser;
             $this->aliasMap = $aliasMap;
             $this->publicOnly = $publicOnly;
